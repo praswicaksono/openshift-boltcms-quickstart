@@ -9,7 +9,7 @@ Create an account at http://openshift.redhat.com/ and install the client tools (
 
 Create a php-5.3 application (you can call your application whatever you want)
 
-    rhc app create bolt php-5 mysql-5 --from-code=https://github.com/Atriedes/openshift-boltcms-quickstart
+    rhc app create bolt php-5.4 mysql-5.4 --from-code=https://github.com/Atriedes/openshift-boltcms-quickstart
 
 That's it, you can now checkout your application at:
 
