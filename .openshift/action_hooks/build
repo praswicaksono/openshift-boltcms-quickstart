@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# To update the version shipped in this quickstart, bump this variable:
+#
+install_version="latest"
+
+# Download and install Wordpress
+
+install_dir=${OPENSHIFT_DATA_DIR}${install_version}
+
+# The Wordpress is already installed, nothing else to do...
+[ -d "${install_dir}" ] && exit 0
+
+mkdir -p ${install_dir}
+
+pushd ${install_dir} >/dev/null
+curl -s http://bolt.cm/distribution/bolt_${install_version}.tgz > bolt-${install_version}.tgz
+
+# Install Wordpress
+#
+cd ${install_dir}
+tar -xzf bolt-${install_version}.tgz
+rm -rf bolt-${install_version}.tgz
+rm -f app/config/config.yml
+rm -rf theme
+rm -rf app/extensions
+curl -s https://gist.github.com/Atriedes/8912394/raw/ed150a9c96fe044b99c7ef061e4625188cc56acf/bolt-config-mysql-openshift > ${install_dir}/app/config/config.yml
+cd ..
+
+popd >/dev/null
+
+ln -sf ${install_dir} ${OPENSHIFT_DATA_DIR}php
+
+sed -i "s/mysqlhost/${OPENSHIFT_MYSQL_DB_HOST}/" ${OPENSHIFT_DATA_DIR}php/app/config/config.yml
+sed -i "s/mysqluser/${OPENSHIFT_MYSQL_DB_USERNAME}/" ${OPENSHIFT_DATA_DIR}php/app/config/config.yml
+sed -i "s/mysqlpass/${OPENSHIFT_MYSQL_DB_PASSWORD}/" ${OPENSHIFT_DATA_DIR}php/app/config/config.yml
+sed -i "s/3306/${OPENSHIFT_MYSQL_DB_PORT}/" ${OPENSHIFT_DATA_DIR}php/app/config/config.yml
+sed -i "s/mysqldb/${OPENSHIFT_APP_NAME}/" ${OPENSHIFT_DATA_DIR}php/app/config/config.yml
