@@ -14,25 +14,39 @@ install_dir=${OPENSHIFT_DATA_DIR}${install_version}
 mkdir -p ${install_dir}
 
 pushd ${install_dir} >/dev/null
-curl -s http://bolt.cm/distribution/bolt_${install_version}.tgz > bolt-${install_version}.tgz
+curl -s http://bolt.cm/distribution/bolt-${install_version}.tar.gz > bolt-${install_version}.tar.gz
 
-# Install Wordpress
-#
+# Install Bolt CMS
 cd ${install_dir}
-tar -xzf bolt-${install_version}.tgz
-rm -rf bolt-${install_version}.tgz
-rm -f app/config/config.yml
-rm -rf theme
-rm -rf app/extensions
-curl -s https://gist.github.com/Atriedes/8912394/raw/ed150a9c96fe044b99c7ef061e4625188cc56acf/bolt-config-mysql-openshift > ${install_dir}/app/config/config.yml
+tar -xzf bolt-${install_version}.tar.gz
+rm -rf bolt-${install_version}.tar.gz
+curl -s https://gist.githubusercontent.com/Atriedes/8912394/raw/23d6afe1acb00d8b1eb084c997ccc073aded2f83/bolt-config-mysql-openshift > ${install_dir}/app/config/config.yml
 cd ..
 
 popd >/dev/null
 
-ln -sf ${install_dir} ${OPENSHIFT_DATA_DIR}php
+# link bolt installation to openshift repo
+ln -sf ${install_dir} ${OPENSHIFT_REPO_DIR}php
 
-sed -i "s/mysqlhost/${OPENSHIFT_MYSQL_DB_HOST}/" ${OPENSHIFT_DATA_DIR}php/app/config/config.yml
-sed -i "s/mysqluser/${OPENSHIFT_MYSQL_DB_USERNAME}/" ${OPENSHIFT_DATA_DIR}php/app/config/config.yml
-sed -i "s/mysqlpass/${OPENSHIFT_MYSQL_DB_PASSWORD}/" ${OPENSHIFT_DATA_DIR}php/app/config/config.yml
-sed -i "s/3306/${OPENSHIFT_MYSQL_DB_PORT}/" ${OPENSHIFT_DATA_DIR}php/app/config/config.yml
-sed -i "s/mysqldb/${OPENSHIFT_APP_NAME}/" ${OPENSHIFT_DATA_DIR}php/app/config/config.yml
+# apply mysql database
+sed -i "s/mysqlhost/${OPENSHIFT_MYSQL_DB_HOST}/" ${OPENSHIFT_REPO_DIR}php/app/config/config.yml
+sed -i "s/mysqluser/${OPENSHIFT_MYSQL_DB_USERNAME}/" ${OPENSHIFT_REPO_DIR}php/app/config/config.yml
+sed -i "s/mysqlpass/${OPENSHIFT_MYSQL_DB_PASSWORD}/" ${OPENSHIFT_REPO_DIR}php/app/config/config.yml
+sed -i "s/3306/${OPENSHIFT_MYSQL_DB_PORT}/" ${OPENSHIFT_REPO_DIR}php/app/config/config.yml
+sed -i "s/mysqldb/${OPENSHIFT_APP_NAME}/" ${OPENSHIFT_REPO_DIR}php/app/config/config.yml
+
+if [ ! -d $OPENSHIFT_DATA_DIR/extensions ]; then
+mkdir $OPENSHIFT_DATA_DIR/extensions
+cp -r $OPENSHIFT_REPO_DIR/php/extensions/* $OPENSHIFT_DATA_DIR/extensions
+rm -rf $OPENSHIFT_REPO_DIR/php/extensions/*
+fi
+
+if [ ! -d $OPENSHIFT_DATA_DIR/theme ]; then
+mkdir $OPENSHIFT_DATA_DIR/theme
+cp -r $OPENSHIFT_REPO_DIR/php/theme/* $OPENSHIFT_DATA_DIR/theme
+rm -rf $OPENSHIFT_REPO_DIR/php/extensions/*
+fi
+
+# link theme and extension folder to repo dir
+ln -sf ${OPENSHIFT_DATA_DIR}theme ${OPENSHIFT_REPO_DIR}php/
+ln -sf ${OPENSHIFT_DATA_DIR}extensions ${OPENSHIFT_REPO_DIR}php/
