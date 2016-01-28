@@ -33,13 +33,13 @@ sed -i "s/mysqldb/${OPENSHIFT_APP_NAME}/" ${install_root}/app/config/config.yml
 
 if [ ! -d $OPENSHIFT_DATA_DIR/extensions ]; then
 mkdir $OPENSHIFT_DATA_DIR/extensions
-cp -r ${install_root}/extensions/ $OPENSHIFT_DATA_DIR/extensions
+cp -r ${install_root}/extensions/* $OPENSHIFT_DATA_DIR/extensions
 rm -rf ${install_root}/extensions
 fi
 
 if [ ! -d $OPENSHIFT_DATA_DIR/theme ]; then
 mkdir $OPENSHIFT_DATA_DIR/theme
-cp -r ${install_root}/theme/ $OPENSHIFT_DATA_DIR/theme
+cp -r ${install_root}/theme/* $OPENSHIFT_DATA_DIR/theme
 rm -rf ${install_root}/theme/
 fi
 
