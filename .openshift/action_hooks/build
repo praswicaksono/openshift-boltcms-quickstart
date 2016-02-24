@@ -24,12 +24,12 @@ cd ..
 
 popd >/dev/null
 
-# apply mysql database
-sed -i "s/mysqlhost/${OPENSHIFT_MYSQL_DB_HOST}/" ${install_root}/app/config/config.yml
-sed -i "s/mysqluser/${OPENSHIFT_MYSQL_DB_USERNAME}/" ${install_root}/app/config/config.yml
-sed -i "s/mysqlpass/${OPENSHIFT_MYSQL_DB_PASSWORD}/" ${install_root}/app/config/config.yml
-sed -i "s/3306/${OPENSHIFT_MYSQL_DB_PORT}/" ${install_root}/app/config/config.yml
-sed -i "s/mysqldb/${OPENSHIFT_APP_NAME}/" ${install_root}/app/config/config.yml
+# move config folder to data
+if [ ! -d $OPENSHIFT_DATA_DIR/config ]; then
+mkdir $OPENSHIFT_DATA_DIR/config
+cp -r ${install_root}/config/* $OPENSHIFT_DATA_DIR/config
+rm -rf ${install_root}/config
+fi
 
 # move extensions folder to data
 if [ ! -d $OPENSHIFT_DATA_DIR/extensions ]; then
@@ -44,6 +44,13 @@ mkdir $OPENSHIFT_DATA_DIR/theme
 cp -r ${install_root}/theme/* $OPENSHIFT_DATA_DIR/theme
 rm -rf ${install_root}/theme/
 fi
+
+# apply mysql database
+sed -i "s/mysqlhost/${OPENSHIFT_MYSQL_DB_HOST}/" ${install_root}/app/config/config.yml
+sed -i "s/mysqluser/${OPENSHIFT_MYSQL_DB_USERNAME}/" ${install_root}/app/config/config.yml
+sed -i "s/mysqlpass/${OPENSHIFT_MYSQL_DB_PASSWORD}/" ${install_root}/app/config/config.yml
+sed -i "s/3306/${OPENSHIFT_MYSQL_DB_PORT}/" ${install_root}/app/config/config.yml
+sed -i "s/mysqldb/${OPENSHIFT_APP_NAME}/" ${install_root}/app/config/config.yml
 
 # link bolt installation to openshift repo
 ln -sf ${install_root} ${OPENSHIFT_REPO_DIR}php
