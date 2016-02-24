@@ -19,7 +19,7 @@ curl -s http://bolt.cm/distribution/bolt-${install_version}.tar.gz > bolt-${inst
 cd ${install_dir}
 tar -xzf bolt-${install_version}.tar.gz
 rm -rf bolt-${install_version}.tar.gz
-curl -s https://gist.githubusercontent.com/Atriedes/8912394/raw/23d6afe1acb00d8b1eb084c997ccc073aded2f83/bolt-config-mysql-openshift > ${install_root}/app/config/config.yml
+cp $OPENSHIFT_DATA_DIR/config.yml ${install_root}/app/config/config.yml
 cd ..
 
 popd >/dev/null
