@@ -2,7 +2,7 @@
 
 # To update the version shipped in this quickstart, bump this variable:
 #
-install_version="2.2.17"
+install_version="latest"
 
 install_dir=${OPENSHIFT_DATA_DIR}bolt-${install_version}
 install_root=${install_dir}/bolt-${install_version}
