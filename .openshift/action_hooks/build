@@ -2,10 +2,9 @@
 
 # To update the version shipped in this quickstart, bump this variable:
 #
-install_version="2.2.17"
+install_version="latest"
 
-install_dir=${OPENSHIFT_DATA_DIR}bolt-${install_version}
-install_root=${install_dir}/bolt-${install_version}
+install_dir=${OPENSHIFT_DATA_DIR}bolt
 
 # The BoltCMS is already installed, nothing else to do...
 [ -d "${install_dir}" ] && exit 0
@@ -17,36 +16,43 @@ curl -s http://bolt.cm/distribution/bolt-${install_version}.tar.gz > bolt-${inst
 
 # Install Bolt CMS
 cd ${install_dir}
-tar -xzf bolt-${install_version}.tar.gz
+tar -xzf bolt-${install_version}.tar.gz --strip-components=1
 rm -rf bolt-${install_version}.tar.gz
-curl -s https://gist.githubusercontent.com/Atriedes/8912394/raw/23d6afe1acb00d8b1eb084c997ccc073aded2f83/bolt-config-mysql-openshift > ${install_root}/app/config/config.yml
+cp $OPENSHIFT_DATA_DIR/config.yml ${install_dir}/app/config/config.yml
 cd ..
 
 popd >/dev/null
 
-# apply mysql database
-sed -i "s/mysqlhost/${OPENSHIFT_MYSQL_DB_HOST}/" ${install_root}/app/config/config.yml
-sed -i "s/mysqluser/${OPENSHIFT_MYSQL_DB_USERNAME}/" ${install_root}/app/config/config.yml
-sed -i "s/mysqlpass/${OPENSHIFT_MYSQL_DB_PASSWORD}/" ${install_root}/app/config/config.yml
-sed -i "s/3306/${OPENSHIFT_MYSQL_DB_PORT}/" ${install_root}/app/config/config.yml
-sed -i "s/mysqldb/${OPENSHIFT_APP_NAME}/" ${install_root}/app/config/config.yml
+# move config folder to data
+if [ ! -d $OPENSHIFT_DATA_DIR/config ]; then
+mkdir $OPENSHIFT_DATA_DIR/config
+cp -r ${install_dir}/config/* $OPENSHIFT_DATA_DIR/config
+rm -rf ${install_dir}/config
+fi
 
 # move extensions folder to data
 if [ ! -d $OPENSHIFT_DATA_DIR/extensions ]; then
 mkdir $OPENSHIFT_DATA_DIR/extensions
-cp -r ${install_root}/extensions/* $OPENSHIFT_DATA_DIR/extensions
-rm -rf ${install_root}/extensions
+cp -r ${install_dir}/extensions/* $OPENSHIFT_DATA_DIR/extensions
+rm -rf ${install_dir}/extensions
 fi
 
 # move theme folder to data
 if [ ! -d $OPENSHIFT_DATA_DIR/theme ]; then
 mkdir $OPENSHIFT_DATA_DIR/theme
-cp -r ${install_root}/theme/* $OPENSHIFT_DATA_DIR/theme
-rm -rf ${install_root}/theme/
+cp -r ${install_dir}/theme/* $OPENSHIFT_DATA_DIR/theme
+rm -rf ${install_dir}/theme/
 fi
 
+# apply mysql database
+sed -i "s/mysqlhost/${OPENSHIFT_MYSQL_DB_HOST}/" ${install_dir}/app/config/config.yml
+sed -i "s/mysqluser/${OPENSHIFT_MYSQL_DB_USERNAMEnan}/" ${install_dir}/app/config/config.yml
+sed -i "s/mysqlpass/${OPENSHIFT_MYSQL_DB_PASSWORD}/" ${install_dir}/app/config/config.yml
+sed -i "s/3306/${OPENSHIFT_MYSQL_DB_PORT}/" ${install_dir}/app/config/config.yml
+sed -i "s/mysqldb/${OPENSHIFT_APP_NAME}/" ${install_dir}/app/config/config.yml
+
 # link bolt installation to openshift repo
-ln -sf ${install_root} ${OPENSHIFT_REPO_DIR}php
+ln -sf ${install_dir} ${OPENSHIFT_REPO_DIR}php
 
 # link theme and extension folder to repo dir
 ln -sf ${OPENSHIFT_DATA_DIR}theme ${OPENSHIFT_REPO_DIR}php/
